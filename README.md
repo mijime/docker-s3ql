@@ -6,19 +6,16 @@ Using it with [docker-hubic-swiftauth-proxy](https://github.com/murf0/docker-hub
 Set environment variables to suite your needs.
 
 ```
-S3QL_TYPE=swift \
-S3QL_STORAGE=<server>:<port> \
-S3QL_STORAGE_CONTAINER=<storage_container> \
-S3QL_STORAGE_FS=<Filesystem_Name> \
+S3QL_URL=swift://<server>:<port>/<storage_container> \
+S3QL_STORAGE=<Filesystem_Name> \
 S3QL_COMPRESS=zlib \
 S3QL_MOUNT_POINT=/mnt/data\
 S3QL_LOGIN=<username> \
 S3QL_PASSWD=<password> \
 S3QL_FSPASSWD=<FS password> \
 S3QL_CACHESIZE=<In KB or empty if you wish to use auto, auto will use up all of the space on your _host_> \
-S3QL_SUBNET=<subnet ex 172.17.0./16> \
-SWIFT_AUTH_ENDPOINT=<HTTP AUTH API endpoint (skip if container is already created)>
-
+S3QL_MAX_OBJ_SIZE=<In KB if you change to limit on maximum object size> \
+S3QL_SUBNET=<subnet ex 172.17.0./16>
 ```
 
 ### Run it
@@ -29,14 +26,14 @@ Changed timeout in my_init from 5sec to 120 sec to allow for syncing of metadata
 
 
 ## Hubic
-Im using hubic 10tb for €5 per month. It's an OVH company, so it's running in France. 
+Im using hubic 10tb for €5 per month. It's an OVH company, so it's running in France.
 
 [hubic.com](https://hubic.com)
 Of if you want to use my affiliate link (I'll get an extra 500gb when you sign up)
 [hubic.com/en/offers?referral=KRMTJR](https://hubic.com/en/offers?referral=KRMTJR)
 
 #Usage in other containers.
-Since this mount is only container local (not mounted in the host file system.) No other containers can use the filesystem directly (eg via --volumes-from) 
+Since this mount is only container local (not mounted in the host file system.) No other containers can use the filesystem directly (eg via --volumes-from)
 Instead you can use NFS
 ```
 mount <s3ql ip>:/folder/already/setup/to/be/shared /mountpoint
@@ -47,14 +44,14 @@ This is a _security_ issue. A compromised container running in privileged mode m
 
 
 ##NFS mount in host instead.
-Basically query docker for the ip of the s3ql container (On name..) then mount on that ip.  Remember to set S3QL_SUBNET accordingly on the container. 
+Basically query docker for the ip of the s3ql container (On name..) then mount on that ip.  Remember to set S3QL_SUBNET accordingly on the container.
 ```
 mount -t nfs $(docker inspect $(docker ps -a | grep s3ql | awk '{print $1}') | grep IPAddress\" | awk -F\" '{print $4}'):/ <mount_point>
 ```
 
 
 ##Docker volumes plugins
-Instead there is a couple of docker-volume plugins you can use: 
+Instead there is a couple of docker-volume plugins you can use:
 https://github.com/SvenDowideit/docker-volumes-nfs
 https://github.com/gondor/docker-volume-netsh
 
